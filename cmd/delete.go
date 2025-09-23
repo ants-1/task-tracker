@@ -2,34 +2,33 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ants-1/task-tracker/service"
 	"github.com/spf13/cobra"
 )
 
-var deleteID int
-
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete existing task by ID.",
 	Long:  `Delete existing task by ID from tasks.json file.`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if deleteID == 0 {
-			fmt.Println("Please provide a valid task ID with --id")
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("Invalid task ID:", args[0])
+			return
 		}
 
-		err := service.DeleteTask(deleteID)
+		err = service.DeleteTask(id)
 		if err != nil {
 			fmt.Printf("Error deleting task: %v\n", err)
 			return
 		}
-		fmt.Printf("Task %d deleted successfully!\n", deleteID)
+		fmt.Printf("Task %d deleted successfully!\n", id)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
-
-	deleteCmd.Flags().IntVarP(&deleteID, "id", "i", 0, "ID of the task to delete")
-	deleteCmd.MarkFlagRequired("id")
 }
